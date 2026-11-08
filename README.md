@@ -1,41 +1,27 @@
-# Open Road Driving Simulator — Prototype
+# Open Road Driving Simulator — expanded prototype
 
-This repository now contains the **first Godot 4 prototype foundation**, not a finished commercial game or a complete APK.
+This is an expanded Godot 4 prototype, not a finished game or exported APK.
 
-## Current prototype
-- Godot 4 project using the Compatibility renderer (OpenGL).
-- Basic 3D test scene with a simple rigid-body car and a ground plane.
-- Early vehicle controller with throttle, brake, steering, RPM, neutral, reverse and six forward gears.
-- Gear selection is gated by the clutch; reverse also requires the car to be nearly stopped.
-- Basic engine-stall logic when the clutch is released badly at low speed.
-- A starter H-pattern mapping function intended for the future on-screen shifter.
-- First-person cabin camera pivot with an early mouse-look test.
+## Implemented in this pass
+- Procedural winding test route with an approximate 17 km total path. At a constant 200 km/h, 17 km takes about 5.1 minutes.
+- First-person driver camera and adjustable seat position, height and backrest.
+- Touch HUD for throttle, brake, steering and clutch, plus keyboard controls.
+- H-pattern touch gear selector for gears 1–6, neutral and reverse. Forward and reverse selection require clutch; reverse also requires near-zero speed.
+- Basic RPM, engine stall and restart logic.
+- Twenty selectable vehicle tuning profiles with different mass, power, torque metadata, redline, grip and target top speed metadata.
+- Traffic presets: off, very low, low, medium, high and very high. Very high spawns 80 lightweight traffic cars.
+- FPS cap selectable from 1 to 60; FPS and traffic settings are saved locally.
+- Compatibility renderer as a lower-end-device starting point.
+
+## Still incomplete
+- This is not yet a detailed open world with city blocks, highways, villages, service stations, garages or parking areas. The current road is a procedural test route.
+- Vehicle physics are simplified rigid-body forces, not realistic tire, suspension, differential or synchronized gearbox simulation. Vehicle profiles are starter tuning data, not complete unique car implementations.
+- Traffic follows a route visually; there is no intelligent lane changing, collision avoidance or full traffic AI.
+- Live adjustable camera mirrors are not implemented.
+- Detailed vehicle meshes, steering wheel/pedal/shifter animation, engine audio, damage, save slots and profiling remain unfinished.
+- Android export templates, signing, installation and testing on the Nokia 6.1 have not been completed. There is no APK in this repository.
 
 ## Run
-1. Install Godot 4.x.
-2. Clone or download this repository.
-3. Open project.godot in Godot.
-4. Run the main scene.
+Install Godot 4.x, clone/download this repository, open project.godot and run the main scene.
 
-### Prototype keyboard controls
-- W: throttle
-- S: brake
-- A / D: steer
-- Space: clutch (hold while selecting gears)
-- N: neutral
-- R: reverse (must be stopped and clutch held)
-- 1–6: select a forward gear (clutch must be held)
-- Hold right mouse button and move the mouse: look around
-
-## Planned work (not implemented yet)
-- Proper H-pattern shifter UI with visible gate movement and reverse lockout.
-- Mobile touch controls and Android export configuration/testing.
-- Proper wheel/suspension/tire physics, differential, engine torque curves, gearbox damage and audio.
-- Driver seat adjustment, three live adjustable mirrors, saved per-car cockpit settings.
-- Head-look controls for touch devices.
-- Large streamed winding map with city, highway, mountain and rural areas.
-- At least 20 distinct vehicles and optimized traffic presets up to a hardware-dependent target.
-- Save system, settings menu, FPS cap (1–60), optimization and profiling on the target phone.
-
-## Important
-The controller is deliberately an early playable placeholder. It is not yet realistic vehicle physics. The requested five-minute cross-map route, complete cockpit, live mirrors, 20 cars, NPC traffic and Android-ready release still need substantial implementation and testing on real hardware.
+Keyboard: W throttle, S brake, A/D steering, Space clutch, N neutral, R reverse, 1–6 gears, E restart engine. The H-pattern touch controls are visible on screen.
