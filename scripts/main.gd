@@ -8,6 +8,7 @@ var traffic_nodes:Array[Node3D]=[]
 var mirror_cameras:Array[Camera3D]=[]
 var mirror_offsets:=[Vector3(-0.72,1.05,0.65),Vector3(0.0,1.05,0.65),Vector3(0.72,1.05,0.65)]
 var mirror_yaws:=[2.65,3.14159,3.63]
+var selected_vehicle:=0
 var road_curve:=Curve3D.new()
 var traffic_level:="کم"
 var settings={"fps":60,"traffic":"کم"}
@@ -350,6 +351,7 @@ func _build_live_mirrors(parent:Control)->void:
   adjust.pressed.connect(func():
    mirror_yaws[i]=fposmod(mirror_yaws[i]+deg_to_rad(5.0),TAU)
    mirror_cameras[i].rotation.y=mirror_yaws[i]
+   _save_mirror_settings()
   )
   parent.add_child(adjust)
 func _spawn_traffic()->void:
@@ -371,6 +373,28 @@ func _spawn_traffic()->void:
   add_child(npc)
   npc.call("configure",road_curve,length*float(i)/maxf(float(count),1.0),8.0+float(i%5)*1.4)
   traffic_nodes.append(npc)
+func _select_vehicle(index:int)->void:
+ _save_mirror_settings()
+ selected_vehicle=clampi(index,0,VehicleCatalog.count()-1)
+ car.set_vehicle(selected_vehicle)
+ _load_mirror_settings()
+ for i in range(mirror_cameras.size()):
+  mirror_cameras[i].global_rotation=car.global_rotation+Vector3(0.0,mirror_yaws[i],0.0)
+
+func _load_mirror_settings()->void:
+ var file:=ConfigFile.new()
+ if file.load("user://settings.cfg")!=OK:
+  return
+ for i in range(3):
+  mirror_yaws[i]=float(file.get_value("mirrors","car_"+str(selected_vehicle)+"_"+str(i),[2.65,3.14159,3.63][i]))
+
+func _save_mirror_settings()->void:
+ var file:=ConfigFile.new()
+ file.load("user://settings.cfg")
+ for i in range(3):
+  file.set_value("mirrors","car_"+str(selected_vehicle)+"_"+str(i),mirror_yaws[i])
+ file.save("user://settings.cfg")
+
 func _apply_fps()->void:
  Engine.max_fps=clampi(int(settings.fps),1,60)
 func _load_settings()->void:
@@ -379,6 +403,7 @@ func _load_settings()->void:
   settings.fps=int(file.get_value("game","fps",60))
   traffic_level=str(file.get_value("game","traffic","کم"))
   if not TRAFFIC_PRESETS.has(traffic_level): traffic_level="کم"
+  _load_mirror_settings()
 func _save_settings()->void:
  var file:=ConfigFile.new()
  file.set_value("game","fps",settings.fps)
