@@ -105,30 +105,35 @@ func _make_service_stop(pos:Vector3,title_text:String,tint:Color)->void:
  add_child(lot)
 func _build_winding_road()->void:
  var points=[Vector3(0,0,0),Vector3(0,0,-794),Vector3(370,0,-1676),Vector3(794,0,-2646),Vector3(618,0,-3796),Vector3(-221,0,-4763),Vector3(-794,0,-5734),Vector3(-618,0,-6968),Vector3(221,0,-7938),Vector3(882,0,-9085),Vector3(706,0,-10298),Vector3(-132,0,-11466),Vector3(-750,0,-12613),Vector3(-353,0,-13834),Vector3(0,0,-14996)]
- for p in points: road_curve.add_point(p)
+ for point in points:
+  road_curve.add_point(point)
  road_curve.bake_interval=2.0
- for i in range(points.size()-1):
-  var a:Vector3=points[i]
-  var b:Vector3=points[i+1]
-  var length:=a.distance_to(b)
+ var route_length:=road_curve.get_baked_length()
+ var segment_count:=ceili(route_length/100.0)
+ for i in range(segment_count):
+  var d0:=float(i)*100.0
+  var d1:=minf(float(i+1)*100.0,route_length)
+  var a:=road_curve.sample_baked(d0)
+  var b:=road_curve.sample_baked(d1)
+  var segment_length:=a.distance_to(b)
   var road:=StaticBody3D.new()
   road.position=(a+b)*0.5+Vector3(0,-0.04,0)
   road.look_at(Vector3(b.x,road.position.y,b.z),Vector3.UP)
   var shape:=CollisionShape3D.new()
   var box:=BoxShape3D.new()
-  box.size=Vector3(13.0,0.3,length+3.0)
+  box.size=Vector3(13.0,0.3,segment_length+2.0)
   shape.shape=box
   road.add_child(shape)
   var visual:=MeshInstance3D.new()
   var mesh:=BoxMesh.new()
   mesh.size=box.size
   visual.mesh=mesh
-  var mat:=StandardMaterial3D.new()
-  mat.albedo_color=Color(0.12,0.13,0.14)
-  visual.material_override=mat
+  var material:=StandardMaterial3D.new()
+  material.albedo_color=Color(0.12,0.13,0.14)
+  visual.material_override=material
   road.add_child(visual)
   add_child(road)
- # Approximately 16.7 km at 200 km/h is five minutes.
+ # Route length is about 16.7 km: roughly five minutes at 200 km/h.
 func _build_player_car()->void:
  car=load("res://scripts/car_controller.gd").new()
  car.name="PlayerCar"
@@ -281,7 +286,10 @@ func _settings_panel(parent:Control)->void:
  col.add_child(fps)
  var traffic:=OptionButton.new()
  for name in TRAFFIC_PRESETS.keys(): traffic.add_item(name)
- traffic.select(2)
+ var saved_traffic_index:=2
+ for i in range(traffic.item_count):
+  if traffic.get_item_text(i)==traffic_level: saved_traffic_index=i
+ traffic.select(saved_traffic_index)
  traffic.item_selected.connect(func(i:int):
   traffic_level=traffic.get_item_text(i)
   settings.traffic=traffic_level
@@ -370,6 +378,7 @@ func _load_settings()->void:
  if file.load("user://settings.cfg")==OK:
   settings.fps=int(file.get_value("game","fps",60))
   traffic_level=str(file.get_value("game","traffic","کم"))
+  if not TRAFFIC_PRESETS.has(traffic_level): traffic_level="کم"
 func _save_settings()->void:
  var file:=ConfigFile.new()
  file.set_value("game","fps",settings.fps)
