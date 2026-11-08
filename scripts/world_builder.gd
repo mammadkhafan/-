@@ -72,10 +72,9 @@ func _build_road(root: Node3D, curve: Curve3D) -> void:
 	var length := curve.get_baked_length()
 	var road_mat := _material(ASPHALT, 0.96)
 	var line_mat := _material(Color(0.92, 0.88, 0.68), 0.8)
-	var shoulder_mat := _material(Color(0.35, 0.34, 0.29), 1.0)
 	var d := 0.0
 	while d < length:
-		var next_d := minf(d + 42.0, length)
+		var next_d := minf(d + 100.0, length)
 		var a := curve.sample_baked(d)
 		var b := curve.sample_baked(next_d)
 		var delta := b - a
@@ -83,14 +82,25 @@ func _build_road(root: Node3D, curve: Curve3D) -> void:
 		if seg_len > 0.1:
 			var mid := (a + b) * 0.5
 			var yaw := atan2(-delta.x, -delta.z)
-			_add_box(root, Vector3(13.0, 0.24, seg_len + 0.8), mid + Vector3(0.0, -0.05, 0.0), yaw, road_mat, true)
-			_add_box(root, Vector3(0.13, 0.018, seg_len), mid + Vector3(0.0, 0.085, 0.0), yaw, line_mat, false)
-			_add_box(root, Vector3(0.16, 0.02, seg_len), mid + Vector3(-6.15, 0.09, 0.0), yaw, shoulder_mat, false)
-			_add_box(root, Vector3(0.16, 0.02, seg_len), mid + Vector3(6.15, 0.09, 0.0), yaw, shoulder_mat, false)
-			for mark_d in range(0, int(seg_len), 12):
-				var p := a.lerp(b, clampf(float(mark_d) / seg_len, 0.0, 1.0))
-				_add_box(root, Vector3(0.12, 0.025, 4.0), p + Vector3(0.0, 0.105, 0.0), yaw, line_mat, false)
+			_add_box(root, Vector3(13.0, 0.24, seg_len + 1.0), mid + Vector3(0.0, -0.05, 0.0), yaw, road_mat, true)
 		d = next_d
+	var dash_mesh := BoxMesh.new()
+	dash_mesh.size = Vector3(0.14, 0.025, 4.2)
+	var dash_mm := MultiMesh.new()
+	dash_mm.transform_format = MultiMesh.TRANSFORM_3D
+	dash_mm.mesh = dash_mesh
+	var dash_count := int(length / 12.0)
+	dash_mm.instance_count = dash_count
+	for i in range(dash_count):
+		var distance := float(i) * 12.0
+		var p := curve.sample_baked(distance)
+		var p2 := curve.sample_baked(minf(distance + 1.0, length))
+		var yaw := atan2(-(p2.x - p.x), -(p2.z - p.z))
+		dash_mm.set_instance_transform(i, Transform3D(Basis(Vector3.UP, yaw), p + Vector3(0.0, 0.105, 0.0)))
+	var dashes := MultiMeshInstance3D.new()
+	dashes.multimesh = dash_mm
+	dashes.material_override = line_mat
+	root.add_child(dashes)
 
 func _add_box(root: Node3D, size: Vector3, pos: Vector3, yaw: float, mat: Material, collision: bool) -> void:
 	var node: Node3D
