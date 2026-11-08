@@ -5,6 +5,8 @@ var speed_label:Label
 var rpm_label:Label
 var gear_label:Label
 var traffic_nodes:Array[Node3D]=[]
+var mirror_cameras:Array[Camera3D]=[]
+var mirror_yaws:=[2.65,3.14159,3.63]
 var road_curve:=Curve3D.new()
 var traffic_level:="کم"
 var settings={"fps":60,"traffic":"کم"}
@@ -42,6 +44,14 @@ func _build_world()->void:
  grass.albedo_color=Color(0.22,0.34,0.19)
  ground.material_override=grass
  add_child(ground)
+ var ground_body:=StaticBody3D.new()
+ var ground_collision:=CollisionShape3D.new()
+ var ground_box:=BoxShape3D.new()
+ ground_box.size=Vector3(20000,1,20000)
+ ground_collision.shape=ground_box
+ ground_body.position.y=-0.62
+ ground_body.add_child(ground_collision)
+ add_child(ground_body)
  _build_winding_road()
 func _build_winding_road()->void:
  var points=[Vector3(0,0,0),Vector3(0,0,-900),Vector3(420,0,-1900),Vector3(900,0,-3000),Vector3(700,0,-4300),Vector3(-250,0,-5400),Vector3(-900,0,-6500),Vector3(-700,0,-7900),Vector3(250,0,-9000),Vector3(1000,0,-10300),Vector3(800,0,-11700),Vector3(-150,0,-13000),Vector3(-850,0,-14300),Vector3(-400,0,-15700),Vector3(0,0,-17000)]
@@ -114,6 +124,7 @@ func _build_hud()->void:
  _shifter(root)
  _settings_panel(root)
  _seat_panel(root)
+ _build_live_mirrors(root)
 func _label(parent:Control,value:String,pos:Vector2,size:int)->Label:
  var l:=Label.new()
  l.text=value
@@ -220,6 +231,41 @@ func _seat_panel(parent:Control)->void:
   var amount:float=spec[2]
   b.pressed.connect(func():car.adjust_seat(axis,amount))
   row.add_child(b)
+func _build_live_mirrors(parent:Control)->void:
+ var captions=["چپ","وسط","راست"]
+ for i in range(3):
+  var viewport:=SubViewport.new()
+  viewport.size=Vector2i(240,120)
+  viewport.world_3d=get_viewport().world_3d
+  viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS
+  var camera:=Camera3D.new()
+  camera.position=Vector3([-0.72,0.0,0.72][i],1.05,0.65)
+  camera.rotation.y=mirror_yaws[i]
+  camera.fov=72
+  viewport.add_child(camera)
+  car.add_child(viewport)
+  mirror_cameras.append(camera)
+  var frame:=TextureRect.new()
+  frame.texture=viewport.get_texture()
+  frame.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+  frame.stretch_mode=TextureRect.STRETCH_SCALE
+  frame.anchor_left=0.31+float(i)*0.115
+  frame.anchor_top=0.025
+  frame.anchor_right=0.42+float(i)*0.115
+  frame.anchor_bottom=0.13
+  parent.add_child(frame)
+  var adjust:=Button.new()
+  adjust.text=captions[i]+" زاویه"
+  adjust.anchor_left=0.31+float(i)*0.115
+  adjust.anchor_top=0.13
+  adjust.anchor_right=0.42+float(i)*0.115
+  adjust.anchor_bottom=0.13
+  adjust.offset_bottom=28
+  adjust.pressed.connect(func():
+   mirror_yaws[i]=fposmod(mirror_yaws[i]+deg_to_rad(5.0),TAU)
+   mirror_cameras[i].rotation.y=mirror_yaws[i]
+  )
+  parent.add_child(adjust)
 func _spawn_traffic()->void:
  for n in traffic_nodes:
   if is_instance_valid(n): n.queue_free()
