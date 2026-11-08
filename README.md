@@ -3,7 +3,7 @@
 This is an expanded Godot 4 prototype, not a finished game or exported APK.
 
 ## Implemented in this pass
-- Procedural winding test route with an approximate 17 km total path. At a constant 200 km/h, 17 km takes about 5.1 minutes.
+- Procedural winding test route with an approximate 16.7 km route. At a constant 200 km/h, this is about five minutes.
 - First-person driver camera and adjustable seat position, height and backrest.
 - Touch HUD for throttle, brake, steering and clutch, plus keyboard controls.
 - H-pattern touch gear selector for gears 1–6, neutral and reverse. Forward and reverse selection require clutch; reverse also requires near-zero speed.
