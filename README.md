@@ -4,7 +4,7 @@ This is an expanded Godot 4 prototype, not a finished game or exported APK.
 
 ## Implemented in this pass
 - Procedural winding test route with an approximate 16.7 km route. At a constant 200 km/h, this is about five minutes.
-- First-person driver camera and adjustable seat position, height and backrest.
+- First-person driver camera, mouse-look and touch-swipe head-look, plus adjustable seat position, height and backrest.
 - Touch HUD for throttle, brake, steering and clutch, plus keyboard controls.
 - H-pattern touch gear selector for gears 1–6, neutral and reverse. Forward and reverse selection require clutch; reverse also requires near-zero speed.
 - Basic RPM, engine stall and restart logic.
@@ -24,4 +24,4 @@ This is an expanded Godot 4 prototype, not a finished game or exported APK.
 ## Run
 Install Godot 4.x, clone/download this repository, open project.godot and run the main scene.
 
-Keyboard: W throttle, S brake, A/D steering, Space clutch, N neutral, R reverse, 1–6 gears, E restart engine. The H-pattern touch controls are visible on screen.
+Keyboard: W throttle, S brake, A/D steering, Space clutch, N neutral, R reverse, 1–6 gears, E restart engine. The H-pattern touch controls are visible on screen. Swipe on an unhandled part of the display to look around.
