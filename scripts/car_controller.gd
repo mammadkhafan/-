@@ -5,6 +5,7 @@ const IDLE_RPM:=850.0
 const FINAL_DRIVE:=3.7
 const WHEEL_RADIUS:=0.33
 const MAX_STEER_ANGLE:=0.48
+const SERVICE_BRAKE:=17000.0
 const GEAR_RATIOS={-1:-3.25,1:3.45,2:2.05,3:1.42,4:1.05,5:0.82,6:0.68}
 
 var vehicle_data:Dictionary={}
@@ -144,7 +145,7 @@ func _apply_wheel_physics(_delta:float)->void:
   var origin:Vector3=ray.global_position
   var distance:=origin.distance_to(hit)
   var compression:=clampf(0.92-distance,0.0,0.32)
-  var contact_offset:=to_local(hit)
+  var contact_offset:=hit-global_position
   var point_velocity:=linear_velocity+angular_velocity.cross(hit-global_position)
   var normal_velocity:=point_velocity.dot(normal)
   var spring_force:=maxf(0.0,compression*24000.0-normal_velocity*2300.0)
