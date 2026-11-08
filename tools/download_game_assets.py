@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fetch CC0 Poly Haven PBR textures and glTF props for Open Road."""
-import json, os, re, time, urllib.request
+import json, os, re, time, urllib.request, urllib.parse
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -52,7 +52,7 @@ manifest = {"license": "CC0 1.0", "source": "Poly Haven", "models": {}, "texture
 credits = ["# Open Road asset credits", "", "All assets below are from Poly Haven and released under CC0 1.0.", ""]
 
 # Real, detailed environment props. 4K avoids absurdly large 8K foliage payloads on mobile.
-model_ids = ["pine_tree_01", "street_lamp_01", "covered_car", "old_tyre", "concrete_road_barrier"]
+model_ids = ["tree_small_02", "street_lamp_01", "covered_car", "old_tyre", "concrete_road_barrier"]
 for slug in model_ids:
     try:
         tree = get_json(f"{API}/files/{slug}")
