@@ -158,6 +158,7 @@ func _build_player_car()->void:
  var mesh:=BoxMesh.new()
  mesh.size=box.size
  body.mesh=mesh
+ body.visible=false
  var paint:=StandardMaterial3D.new()
  paint.albedo_color=Color(0.12,0.32,0.72)
  body.material_override=paint
