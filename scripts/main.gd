@@ -68,7 +68,7 @@ func _build_winding_road()->void:
   var road:=StaticBody3D.new()
   road.position=(a+b)*0.5+Vector3(0,-0.04,0)
   road.look_at(Vector3(b.x,road.position.y,b.z),Vector3.UP)
-  var shape:=CollisionShape3D.new()
+ var shape:=CollisionShape3D.new()
   var box:=BoxShape3D.new()
   box.size=Vector3(13.0,0.3,length+3.0)
   shape.shape=box
