@@ -104,7 +104,7 @@ func _make_service_stop(pos:Vector3,title_text:String,tint:Color)->void:
  lot.material_override=pavement
  add_child(lot)
 func _build_winding_road()->void:
- var points=[Vector3(0,0,0),Vector3(0,0,-900),Vector3(420,0,-1900),Vector3(900,0,-3000),Vector3(700,0,-4300),Vector3(-250,0,-5400),Vector3(-900,0,-6500),Vector3(-700,0,-7900),Vector3(250,0,-9000),Vector3(1000,0,-10300),Vector3(800,0,-11700),Vector3(-150,0,-13000),Vector3(-850,0,-14300),Vector3(-400,0,-15700),Vector3(0,0,-17000)]
+ var points=[Vector3(0,0,0),Vector3(0,0,-794),Vector3(370,0,-1676),Vector3(794,0,-2646),Vector3(618,0,-3796),Vector3(-221,0,-4763),Vector3(-794,0,-5734),Vector3(-618,0,-6968),Vector3(221,0,-7938),Vector3(882,0,-9085),Vector3(706,0,-10298),Vector3(-132,0,-11466),Vector3(-750,0,-12613),Vector3(-353,0,-13834),Vector3(0,0,-14996)]
  for p in points: road_curve.add_point(p)
  road_curve.bake_interval=2.0
  for i in range(points.size()-1):
@@ -128,7 +128,7 @@ func _build_winding_road()->void:
   visual.material_override=mat
   road.add_child(visual)
   add_child(road)
- # 17 km at 200 km/h is approximately 5.1 minutes.
+ # Approximately 16.7 km at 200 km/h is five minutes.
 func _build_player_car()->void:
  car=load("res://scripts/car_controller.gd").new()
  car.name="PlayerCar"
