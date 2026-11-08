@@ -14,11 +14,11 @@ This is an expanded Godot 4 prototype, not a finished game or exported APK.
 - Compatibility renderer as a lower-end-device starting point.
 
 ## Still incomplete
-- This is not yet a detailed open world with city blocks, highways, villages, service stations, garages or parking areas. The current road is a procedural test route.
+- The route now has a small procedural town, scattered rural houses, and simple gas-station, repair-shop and parking landmarks. These are primitive prototype scenery, not a detailed finished open world with a full street network or modeled interiors.
 - Vehicle physics are simplified rigid-body forces, not realistic tire, suspension, differential or synchronized gearbox simulation. Vehicle profiles are starter tuning data, not complete unique car implementations.
 - Traffic follows a route visually; there is no intelligent lane changing, collision avoidance or full traffic AI.
-- Live adjustable camera mirrors are not implemented.
-- Detailed vehicle meshes, steering wheel/pedal/shifter animation, engine audio, damage, save slots and profiling remain unfinished.
+- Three low-resolution live camera mirrors are included with basic angle adjustment. Per-vehicle saved mirror presets and polished mirror housings are not finished.
+- A basic dashboard, steering-wheel ring, pedals and gear lever are visible cockpit placeholders; they are not yet animated. Detailed vehicle meshes, engine audio, damage, save slots and profiling remain unfinished.
 - Android export templates, signing, installation and testing on the Nokia 6.1 have not been completed. There is no APK in this repository.
 
 ## Run
