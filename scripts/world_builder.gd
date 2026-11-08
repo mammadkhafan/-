@@ -3,6 +3,7 @@ class_name OpenRoadWorldBuilder
 
 const ASPHALT := Color(0.075, 0.082, 0.09)
 const GRASS := Color(0.19, 0.29, 0.16)
+var asset_manifest: Dictionary = {}
 
 func build_world(root: Node3D, curve: Curve3D) -> void:
 	_build_lighting(root)
@@ -11,6 +12,8 @@ func build_world(root: Node3D, curve: Curve3D) -> void:
 	_build_forest(root, curve)
 	_build_hills(root, curve)
 	_build_town(root)
+	_load_asset_manifest()
+	_build_imported_props(root, curve)
 
 func _material(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -56,7 +59,7 @@ func _build_ground(root: Node3D) -> void:
 	plane.size = Vector2(40000.0, 40000.0)
 	ground.mesh = plane
 	ground.position.y = -0.2
-	ground.material_override = _material(GRASS, 1.0)
+	ground.material_override = _pbr_material("grass", GRASS, Vector3(950.0, 950.0, 1.0))
 	root.add_child(ground)
 
 	var body := StaticBody3D.new()
@@ -70,7 +73,7 @@ func _build_ground(root: Node3D) -> void:
 
 func _build_road(root: Node3D, curve: Curve3D) -> void:
 	var length := curve.get_baked_length()
-	var road_mat := _material(ASPHALT, 0.96)
+	var road_mat := _pbr_material("asphalt", ASPHALT, Vector3(14.0, 14.0, 1.0))
 	var line_mat := _material(Color(0.92, 0.88, 0.68), 0.8)
 	var d := 0.0
 	while d < length:
@@ -218,3 +221,82 @@ func _build_town(root: Node3D) -> void:
 		var house_mat := _material(Color.from_hsv(rng.randf_range(0.04, 0.14), 0.18, 0.72), 0.95)
 		_add_box(root, Vector3(8.5, height, 9.0), Vector3(x, height * 0.5, z), 0.0, house_mat, false)
 		_add_box(root, Vector3(9.0, 0.3, 9.5), Vector3(x, height + 0.12, z), 0.0, _material(Color(0.25, 0.18, 0.14)), false)
+
+
+func _load_asset_manifest() -> void:
+	var path := "res://assets/polyhaven/asset_manifest.json"
+	if FileAccess.file_exists(path):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if parsed is Dictionary:
+			asset_manifest = parsed
+
+func _pbr_material(key: String, fallback: Color, uv_scale: Vector3) -> StandardMaterial3D:
+	var material := _material(fallback, 0.88)
+	material.uv1_scale = uv_scale
+	var textures: Dictionary = asset_manifest.get("textures", {})
+	var entry: Dictionary = textures.get(key, {})
+	var maps: Dictionary = entry.get("maps", {})
+	for map_name in maps.keys():
+		var map_key := str(map_name).to_lower()
+		var texture_path := str(maps[map_name])
+		if not ResourceLoader.exists(texture_path):
+			continue
+		var texture := load(texture_path) as Texture2D
+		if texture == null:
+			continue
+		if map_key.contains("diff") or map_key.contains("color") or map_key.contains("albedo"):
+			material.albedo_texture = texture
+			material.albedo_color = Color.WHITE
+		elif map_key.contains("nor"):
+			material.normal_enabled = true
+			material.normal_texture = texture
+		elif map_key.contains("rough"):
+			material.roughness_texture = texture
+		elif map_key == "ao" or map_key.contains("occlusion"):
+			material.ao_enabled = true
+			material.ao_texture = texture
+	return material
+
+func _asset_scene_path(slug: String) -> String:
+	var models: Dictionary = asset_manifest.get("models", {})
+	var entry: Dictionary = models.get(slug, {})
+	return str(entry.get("scene", ""))
+
+func _place_asset(root: Node3D, slug: String, position: Vector3, scale: Vector3 = Vector3.ONE, yaw: float = 0.0) -> Node3D:
+	var scene_path := _asset_scene_path(slug)
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
+		return null
+	var packed := load(scene_path) as PackedScene
+	if packed == null:
+		return null
+	var instance := packed.instantiate() as Node3D
+	if instance == null:
+		return null
+	instance.position = position
+	instance.scale = scale
+	instance.rotation.y = yaw
+	root.add_child(instance)
+	return instance
+
+func _build_imported_props(root: Node3D, curve: Curve3D) -> void:
+	var length := curve.get_baked_length()
+	# One high-detail hero tree; the surrounding forest remains instanced low-poly for mobile performance.
+	var tree_pos := curve.sample_baked(minf(620.0, length))
+	var tangent := (curve.sample_baked(minf(622.0, length)) - tree_pos).normalized()
+	var side := tangent.cross(Vector3.UP).normalized()
+	_place_asset(root, "tree_small_02", tree_pos + side * 34.0, Vector3(0.72, 0.72, 0.72), 0.7)
+	# Detailed street lamps are repeated only around built-up sections.
+	for distance in [2750.0, 3050.0, 3350.0, 3650.0, 3950.0, 4250.0]:
+		if distance < length:
+			var p := curve.sample_baked(distance)
+			var p2 := curve.sample_baked(minf(distance + 2.0, length))
+			var direction := (p2 - p).normalized()
+			var right := direction.cross(Vector3.UP).normalized()
+			_place_asset(root, "street_lamp_01", p + right * 8.8, Vector3(0.9, 0.9, 0.9), atan2(-direction.x, -direction.z))
+			_place_asset(root, "street_lamp_01", p - right * 8.8, Vector3(0.9, 0.9, 0.9), atan2(-direction.x, -direction.z) + PI)
+	# Static covered vehicle and workshop props add recognizable detail to service areas.
+	_place_asset(root, "covered_car", Vector3(-287.0, 0.0, -13912.0), Vector3(0.95, 0.95, 0.95), 0.5)
+	_place_asset(root, "old_tyre", Vector3(793.0, 0.0, -9590.0), Vector3(0.012, 0.012, 0.012), 0.2)
+	for i in range(4):
+		_place_asset(root, "concrete_road_barrier", Vector3(232.0 + float(i) * 3.1, 0.0, -4312.0), Vector3(0.9, 0.9, 0.9), 0.0)
+
