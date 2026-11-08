@@ -296,7 +296,7 @@ func _build_imported_props(root: Node3D, curve: Curve3D) -> void:
 			_place_asset(root, "street_lamp_01", p - right * 8.8, Vector3(0.9, 0.9, 0.9), atan2(-direction.x, -direction.z) + PI)
 	# Static covered vehicle and workshop props add recognizable detail to service areas.
 	_place_asset(root, "covered_car", Vector3(-287.0, 0.0, -13912.0), Vector3(0.95, 0.95, 0.95), 0.5)
-	_place_asset(root, "old_tyre", Vector3(793.0, 0.0, -9590.0), Vector3(0.012, 0.012, 0.012), 0.2)
+	_place_asset(root, "old_tyre", Vector3(793.0, 0.0, -9590.0), Vector3.ONE, 0.2)
 	for i in range(4):
 		_place_asset(root, "concrete_road_barrier", Vector3(232.0 + float(i) * 3.1, 0.0, -4312.0), Vector3(0.9, 0.9, 0.9), 0.0)
 
