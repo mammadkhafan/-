@@ -408,24 +408,115 @@ func _build_live_mirrors(parent:Control)->void:
   )
   parent.add_child(adjust)
 func _spawn_traffic()->void:
- for n in traffic_nodes:
-  if is_instance_valid(n): n.queue_free()
- traffic_nodes.clear()
- var count:int=int(TRAFFIC_PRESETS.get(traffic_level,15))
- var length:=maxf(road_curve.get_baked_length(),1.0)
- for i in range(count):
-  var npc:Node3D=load("res://scripts/traffic_car.gd").new()
-  var visual:=MeshInstance3D.new()
-  var mesh:=BoxMesh.new()
-  mesh.size=Vector3(1.7,0.85,3.5)
-  visual.mesh=mesh
-  var mat:=StandardMaterial3D.new()
-  mat.albedo_color=Color.from_hsv(fposmod(float(i)*0.137,1.0),0.55,0.8)
-  visual.material_override=mat
-  npc.add_child(visual)
-  add_child(npc)
-  npc.call("configure",road_curve,length*float(i)/maxf(float(count),1.0),8.0+float(i%5)*1.4)
-  traffic_nodes.append(npc)
+	for n in traffic_nodes:
+		if is_instance_valid(n):
+			n.queue_free()
+	traffic_nodes.clear()
+	var count:int=int(TRAFFIC_PRESETS.get(traffic_level,15))
+	var length:=maxf(road_curve.get_baked_length(),1.0)
+	for i in range(count):
+		var npc:Node3D=load("res://scripts/traffic_car.gd").new()
+		var tint:=Color.from_hsv(fposmod(float(i)*0.137,1.0),0.62,0.82)
+		_build_traffic_car_visual(npc,tint)
+		add_child(npc)
+		npc.call("configure",road_curve,length*float(i)/maxf(float(count),1.0),8.0+float(i%5)*1.4)
+		traffic_nodes.append(npc)
+
+func _build_traffic_car_visual(parent:Node3D,paint:Color)->void:
+	var body_mat:=StandardMaterial3D.new()
+	body_mat.albedo_color=paint
+	body_mat.metallic=0.42
+	body_mat.roughness=0.28
+	var glass_mat:=StandardMaterial3D.new()
+	glass_mat.albedo_color=Color(0.055,0.12,0.17,0.78)
+	glass_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	glass_mat.metallic=0.25
+	glass_mat.roughness=0.12
+	var rubber:=StandardMaterial3D.new()
+	rubber.albedo_color=Color(0.018,0.02,0.023)
+	var chrome:=StandardMaterial3D.new()
+	chrome.albedo_color=Color(0.55,0.59,0.62)
+	chrome.metallic=0.82
+	chrome.roughness=0.22
+	var body:=MeshInstance3D.new()
+	var bm:=BoxMesh.new()
+	bm.size=Vector3(1.72,0.58,3.55)
+	body.mesh=bm
+	body.position.y=0.55
+	body.material_override=body_mat
+	parent.add_child(body)
+	var cabin:=MeshInstance3D.new()
+	var cm:=BoxMesh.new()
+	cm.size=Vector3(1.38,0.68,1.82)
+	cabin.mesh=cm
+	cabin.position=Vector3(0.0,1.08,0.12)
+	cabin.material_override=glass_mat
+	parent.add_child(cabin)
+	var roof:=MeshInstance3D.new()
+	var rm:=BoxMesh.new()
+	rm.size=Vector3(1.34,0.09,1.52)
+	roof.mesh=rm
+	roof.position=Vector3(0.0,1.46,0.17)
+	roof.material_override=body_mat
+	parent.add_child(roof)
+	for side in [-1.0,1.0]:
+		var pillar:=MeshInstance3D.new()
+		var pm:=BoxMesh.new()
+		pm.size=Vector3(0.07,0.68,0.08)
+		pillar.mesh=pm
+		pillar.position=Vector3(side*0.69,1.08,-0.72)
+		pillar.material_override=chrome
+		parent.add_child(pillar)
+	for z in [-1.12,1.12]:
+		for side in [-1.0,1.0]:
+			var wheel:=MeshInstance3D.new()
+			var wm:=CylinderMesh.new()
+			wm.top_radius=0.34
+			wm.bottom_radius=0.34
+			wm.height=0.22
+			wheel.mesh=wm
+			wheel.position=Vector3(side*0.86,0.34,z)
+			wheel.rotation.z=PI*0.5
+			wheel.material_override=rubber
+			parent.add_child(wheel)
+	for side in [-1.0,1.0]:
+		var headlamp:=MeshInstance3D.new()
+		var hm:=BoxMesh.new()
+		hm.size=Vector3(0.34,0.13,0.06)
+		headlamp.mesh=hm
+		headlamp.position=Vector3(side*0.53,0.62,-1.8)
+		headlamp.material_override=_hud_material(Color(0.92,0.94,0.78),0.25)
+		parent.add_child(headlamp)
+		var taillamp:=MeshInstance3D.new()
+		var tm:=BoxMesh.new()
+		tm.size=Vector3(0.3,0.18,0.06)
+		taillamp.mesh=tm
+		taillamp.position=Vector3(side*0.54,0.66,1.8)
+		taillamp.material_override=_hud_material(Color(0.78,0.025,0.018),0.25)
+		parent.add_child(taillamp)
+	var front_bumper:=MeshInstance3D.new()
+	var fb:=BoxMesh.new()
+	fb.size=Vector3(1.78,0.16,0.12)
+	front_bumper.mesh=fb
+	front_bumper.position=Vector3(0.0,0.34,-1.81)
+	front_bumper.material_override=chrome
+	parent.add_child(front_bumper)
+	var rear_bumper:=MeshInstance3D.new()
+	var rb:=BoxMesh.new()
+	rb.size=Vector3(1.78,0.16,0.12)
+	rear_bumper.mesh=rb
+	rear_bumper.position=Vector3(0.0,0.34,1.81)
+	rear_bumper.material_override=chrome
+	parent.add_child(rear_bumper)
+
+func _hud_material(color:Color,roughness:float)->StandardMaterial3D:
+	var material:=StandardMaterial3D.new()
+	material.albedo_color=color
+	material.roughness=roughness
+	material.emission_enabled=true
+	material.emission=color*0.35
+	return material
+
 func _select_vehicle(index:int)->void:
  _save_mirror_settings()
  selected_vehicle=clampi(index,0,VehicleCatalog.count()-1)
