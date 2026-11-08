@@ -1,0 +1,32 @@
+name: Godot Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4.1
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Import and validate project
+        run: godot --headless --editor --path . --quit
+      - name: Export Android debug APK
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/OpenRoad-debug.apk
+          test -s build/OpenRoad-debug.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenRoad-Android-debug
+          path: build/OpenRoad-debug.apk
+          if-no-files-found: error
+          retention-days: 14
