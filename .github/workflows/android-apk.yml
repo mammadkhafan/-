@@ -16,15 +16,53 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Configure Android export tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz -O /tmp/godot-templates.tpz
+          unzip -q /tmp/godot-templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+          SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/opt/android-sdk}}"
+          if [ ! -x "$SDK_PATH/platform-tools/adb" ]; then
+            ADB_PATH="$(find / -path '*/platform-tools/adb' -type f 2>/dev/null | head -n 1)"
+            test -n "$ADB_PATH"
+            SDK_PATH="$(dirname "$(dirname "$ADB_PATH")")"
+          fi
+          JAVA_PATH="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
+          mkdir -p "$HOME/.config/godot" "$HOME/.android"
+          keytool -genkeypair -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          _data = {
+          "export/android/android_sdk_path": "$SDK_PATH",
+          "export/android/java_sdk_path": "$JAVA_PATH",
+          "export/android/debug_keystore": "$HOME/.android/debug.keystore",
+          "export/android/debug_keystore_user": "androiddebugkey",
+          "export/android/debug_keystore_pass": "android"
+          }
+          EOF
+          echo "Android SDK: $SDK_PATH"
+          echo "Java SDK: $JAVA_PATH"
+          test -x "$SDK_PATH/platform-tools/adb"
+          test -x "$JAVA_PATH/bin/java"
+
       - name: Import and validate project
         run: godot --headless --editor --path . --quit
+
       - name: Run headless gameplay smoke test
         run: godot --headless --path . --quit-after 3
+
       - name: Export Android debug APK
         run: |
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/OpenRoad-debug.apk
           test -s build/OpenRoad-debug.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
