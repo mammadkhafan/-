@@ -49,6 +49,11 @@ jobs:
           test -x "$SDK_PATH/platform-tools/adb"
           test -x "$JAVA_PATH/bin/java"
 
+      - name: Install asset build dependency
+        run: |
+          apt-get update
+          apt-get install -y python3
+
       - name: Download high-resolution CC0 game assets
         run: python3 tools/download_game_assets.py
 
