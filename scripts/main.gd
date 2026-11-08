@@ -249,7 +249,7 @@ func _shifter(parent:Control)->void:
   var line:=HBoxContainer.new()
   col.add_child(line)
   for column in range(3):
-   var value:= [[1,3,5],[2,4,6]][row][column]
+   var value:int = [[1,3,5],[2,4,6]][row][column]
    var b:=Button.new()
    b.text=str(value)
    b.size_flags_horizontal=Control.SIZE_EXPAND_FILL
