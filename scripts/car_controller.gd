@@ -31,6 +31,7 @@ var wheel_spin:=0.0
 func _ready()->void:
  vehicle_data=VehicleCatalog.get_vehicle(selected_car)
  mass=float(vehicle_data.get("mass",1200.0))
+ _load_seat_setup()
  contact_monitor=true
  max_contacts_reported=8
  can_sleep=false
@@ -63,9 +64,11 @@ func _create_wheel_rig()->void:
   wheel_meshes.append(wheel)
 
 func set_vehicle(index:int)->void:
+ _save_seat_setup()
  selected_car=clampi(index,0,VehicleCatalog.count()-1)
  vehicle_data=VehicleCatalog.get_vehicle(selected_car)
  mass=float(vehicle_data.get("mass",1200.0))
+ _load_seat_setup()
 
 func _unhandled_input(event:InputEvent)->void:
  if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_RIGHT:
@@ -134,7 +137,6 @@ func _apply_wheel_physics(_delta:float)->void:
  var top_speed:=float(vehicle_data.get("top",180.0))
  if speed_kmh>top_speed and drive_force>0.0:
   drive_force=0.0
- var normal_total:=0.0
  for i in range(wheel_rays.size()):
   var ray:=wheel_rays[i]
   ray.force_raycast_update()
@@ -151,7 +153,6 @@ func _apply_wheel_physics(_delta:float)->void:
   var spring_force:=maxf(0.0,compression*24000.0-normal_velocity*2300.0)
   spring_force=minf(spring_force,mass*9.81*1.8)
   apply_force(normal*spring_force,contact_offset)
-  normal_total+=spring_force
   var wheel_forward:=forward
   if i<2:
    wheel_forward=forward.rotated(up,-steering_input*MAX_STEER_ANGLE)
@@ -171,8 +172,6 @@ func _apply_wheel_physics(_delta:float)->void:
  wheel_spin+=linear_velocity.length()*_delta/WHEEL_RADIUS
  for wheel in wheel_meshes:
   wheel.rotation.x=wheel_spin
- if normal_total<=0.0:
-  apply_central_force(Vector3.DOWN*mass*9.81)
 
 func _update_camera()->void:
  camera_pivot.position=Vector3(0.0,1.0+seat_offset.y,-0.35+seat_offset.z)
@@ -200,6 +199,25 @@ func adjust_seat(axis:String,amount:float)->void:
   seat_offset.y=clampf(seat_offset.y+amount,-0.2,0.2)
  elif axis=="backrest":
   seat_pitch=clampf(seat_pitch+amount,deg_to_rad(-12),deg_to_rad(12))
+ _save_seat_setup()
+
+func _load_seat_setup()->void:
+ var config:=ConfigFile.new()
+ if config.load("user://settings.cfg")!=OK:
+  return
+ var section:="seat_"+str(selected_car)
+ seat_offset.z=float(config.get_value(section,"forward",0.0))
+ seat_offset.y=float(config.get_value(section,"height",0.0))
+ seat_pitch=float(config.get_value(section,"backrest",0.0))
+
+func _save_seat_setup()->void:
+ var config:=ConfigFile.new()
+ config.load("user://settings.cfg")
+ var section:="seat_"+str(selected_car)
+ config.set_value(section,"forward",seat_offset.z)
+ config.set_value(section,"height",seat_offset.y)
+ config.set_value(section,"backrest",seat_pitch)
+ config.save("user://settings.cfg")
 
 func get_dashboard_data()->Dictionary:
  return {"speed_kmh":snappedf(speed_kmh,0.1),"rpm":int(engine_rpm),"gear":"R" if gear==-1 else ("N" if gear==0 else str(gear)),"engine_running":engine_running,"clutch_pressed":clutch_pressed}
