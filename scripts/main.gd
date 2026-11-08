@@ -57,6 +57,52 @@ func _build_world()->void:
  ground_body.add_child(ground_collision)
  add_child(ground_body)
  _build_winding_road()
+ _build_landmarks()
+func _build_landmarks()->void:
+ for i in range(18):
+  var building:=MeshInstance3D.new()
+  var mesh:=BoxMesh.new()
+  var h:=8.0+float(i%5)*3.0
+  mesh.size=Vector3(11.0,h,13.0)
+  building.mesh=mesh
+  building.position=Vector3(-38.0-float(i%3)*17.0,h*0.5,-120.0-float(i/3)*75.0)
+  var mat:=StandardMaterial3D.new()
+  mat.albedo_color=Color.from_hsv(0.08+float(i%6)*0.07,0.22,0.68)
+  building.material_override=mat
+  add_child(building)
+ for i in range(10):
+  var house:=MeshInstance3D.new()
+  var hm:=BoxMesh.new()
+  hm.size=Vector3(9,5,8)
+  house.mesh=hm
+  house.position=Vector3(28.0+float(i%2)*15.0,2.5,-2400.0-float(i)*520.0)
+  add_child(house)
+ _make_service_stop(Vector3(24,0,-4300),"پمپ بنزین",Color(0.82,0.68,0.16))
+ _make_service_stop(Vector3(-26,0,-9600),"تعمیرگاه",Color(0.18,0.48,0.72))
+ _make_service_stop(Vector3(22,0,-13900),"پارکینگ",Color(0.28,0.58,0.34))
+func _make_service_stop(pos:Vector3,title_text:String,tint:Color)->void:
+ var building:=MeshInstance3D.new()
+ var mesh:=BoxMesh.new()
+ mesh.size=Vector3(16,5,10)
+ building.mesh=mesh
+ building.position=pos+Vector3(0,2.5,0)
+ var mat:=StandardMaterial3D.new()
+ mat.albedo_color=tint
+ building.material_override=mat
+ add_child(building)
+ var sign:=Label3D.new()
+ sign.text=title_text
+ sign.position=pos+Vector3(0,6,0)
+ add_child(sign)
+ var lot:=MeshInstance3D.new()
+ var lm:=BoxMesh.new()
+ lm.size=Vector3(28,0.15,24)
+ lot.mesh=lm
+ lot.position=pos+Vector3(0,0.05,14)
+ var pavement:=StandardMaterial3D.new()
+ pavement.albedo_color=Color(0.2,0.2,0.2)
+ lot.material_override=pavement
+ add_child(lot)
 func _build_winding_road()->void:
  var points=[Vector3(0,0,0),Vector3(0,0,-900),Vector3(420,0,-1900),Vector3(900,0,-3000),Vector3(700,0,-4300),Vector3(-250,0,-5400),Vector3(-900,0,-6500),Vector3(-700,0,-7900),Vector3(250,0,-9000),Vector3(1000,0,-10300),Vector3(800,0,-11700),Vector3(-150,0,-13000),Vector3(-850,0,-14300),Vector3(-400,0,-15700),Vector3(0,0,-17000)]
  for p in points: road_curve.add_point(p)
@@ -100,6 +146,33 @@ func _build_player_car()->void:
  paint.albedo_color=Color(0.12,0.32,0.72)
  body.material_override=paint
  car.add_child(body)
+ var dash:=MeshInstance3D.new()
+ var dash_mesh:=BoxMesh.new()
+ dash_mesh.size=Vector3(1.55,0.28,0.48)
+ dash.mesh=dash_mesh
+ dash.position=Vector3(0,0.48,-1.0)
+ car.add_child(dash)
+ var wheel:=MeshInstance3D.new()
+ var wheel_mesh:=TorusMesh.new()
+ wheel_mesh.inner_radius=0.25
+ wheel_mesh.outer_radius=0.31
+ wheel.mesh=wheel_mesh
+ wheel.position=Vector3(0,0.63,-0.62)
+ wheel.rotation.x=deg_to_rad(90)
+ car.add_child(wheel)
+ for side in [-1.0,1.0]:
+  var pedal:=MeshInstance3D.new()
+  var pm:=BoxMesh.new()
+  pm.size=Vector3(0.12,0.22,0.06)
+  pedal.mesh=pm
+  pedal.position=Vector3(side*0.22,0.12,-0.62)
+  car.add_child(pedal)
+ var lever:=MeshInstance3D.new()
+ var lm:=CylinderMesh.new()
+ lm.height=0.38
+ lever.mesh=lm
+ lever.position=Vector3(0.32,0.35,-0.25)
+ car.add_child(lever)
  var pivot:=Node3D.new()
  pivot.name="CabinCameraPivot"
  pivot.position=Vector3(0,1.0,-0.35)
