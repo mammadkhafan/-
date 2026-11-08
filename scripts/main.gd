@@ -108,7 +108,7 @@ func _build_player_car()->void:
  var mesh:=BoxMesh.new()
  mesh.size=box.size
  body.mesh=mesh
- body.visible=true
+ body.visible=false
  var paint:=StandardMaterial3D.new()
  paint.albedo_color=Color(0.12,0.32,0.72)
  body.material_override=paint
@@ -159,6 +159,78 @@ func _build_player_car()->void:
  steering_hub.rotation.x=deg_to_rad(72)
  steering_hub.material_override=dash_mat
  car.add_child(steering_hub)
+ # Detailed driver seat, door trim, side mirrors and center console.
+ var seat_mat:=StandardMaterial3D.new()
+ seat_mat.albedo_color=Color(0.045,0.055,0.065)
+ seat_mat.roughness=0.92
+ var seat_base:=MeshInstance3D.new()
+ var seat_base_mesh:=BoxMesh.new()
+ seat_base_mesh.size=Vector3(0.62,0.20,0.58)
+ seat_base.mesh=seat_base_mesh
+ seat_base.position=Vector3(-0.38,0.18,0.48)
+ seat_base.material_override=seat_mat
+ car.add_child(seat_base)
+ var seat_back:=MeshInstance3D.new()
+ var seat_back_mesh:=BoxMesh.new()
+ seat_back_mesh.size=Vector3(0.62,0.82,0.20)
+ seat_back.mesh=seat_back_mesh
+ seat_back.position=Vector3(-0.38,0.66,0.72)
+ seat_back.rotation.x=deg_to_rad(-7.0)
+ seat_back.material_override=seat_mat
+ car.add_child(seat_back)
+ var headrest:=MeshInstance3D.new()
+ var headrest_mesh:=BoxMesh.new()
+ headrest_mesh.size=Vector3(0.32,0.28,0.18)
+ headrest.mesh=headrest_mesh
+ headrest.position=Vector3(-0.38,1.17,0.79)
+ headrest.material_override=seat_mat
+ car.add_child(headrest)
+ for side in [-1.0,1.0]:
+  var door:=MeshInstance3D.new()
+  var door_mesh:=BoxMesh.new()
+  door_mesh.size=Vector3(0.12,0.52,1.35)
+  door.mesh=door_mesh
+  door.position=Vector3(side*0.82,0.48,0.18)
+  door.material_override=dash_mat
+  car.add_child(door)
+  var mirror:=MeshInstance3D.new()
+  var mirror_mesh:=BoxMesh.new()
+  mirror_mesh.size=Vector3(0.24,0.12,0.18)
+  mirror.mesh=mirror_mesh
+  mirror.position=Vector3(side*1.02,0.95,-0.88)
+  mirror.material_override=dash_mat
+  car.add_child(mirror)
+ var console:=MeshInstance3D.new()
+ var console_mesh:=BoxMesh.new()
+ console_mesh.size=Vector3(0.48,0.18,0.68)
+ console.mesh=console_mesh
+ console.position=Vector3(0.28,0.24,-0.38)
+ console.material_override=dash_mat
+ car.add_child(console)
+ var screen:=MeshInstance3D.new()
+ var screen_mesh:=BoxMesh.new()
+ screen_mesh.size=Vector3(0.34,0.20,0.025)
+ screen.mesh=screen_mesh
+ screen.position=Vector3(0.28,0.43,-0.68)
+ var screen_mat:=StandardMaterial3D.new()
+ screen_mat.albedo_color=Color(0.015,0.12,0.16)
+ screen_mat.emission_enabled=true
+ screen_mat.emission=Color(0.02,0.28,0.36)
+ screen_mat.roughness=0.18
+ screen.material_override=screen_mat
+ car.add_child(screen)
+ var windshield:=MeshInstance3D.new()
+ var windshield_mesh:=BoxMesh.new()
+ windshield_mesh.size=Vector3(1.48,0.76,0.035)
+ windshield.mesh=windshield_mesh
+ windshield.position=Vector3(0.0,1.02,-1.06)
+ var windshield_mat:=StandardMaterial3D.new()
+ windshield_mat.albedo_color=Color(0.38,0.58,0.68,0.12)
+ windshield_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+ windshield_mat.roughness=0.08
+ windshield_mat.metallic=0.18
+ windshield.material_override=windshield_mat
+ car.add_child(windshield)
  var pivot:=Node3D.new()
  pivot.name="CabinCameraPivot"
  pivot.position=Vector3(0,0.88,-0.18)
