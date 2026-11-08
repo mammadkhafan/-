@@ -6,6 +6,7 @@ var rpm_label:Label
 var gear_label:Label
 var traffic_nodes:Array[Node3D]=[]
 var mirror_cameras:Array[Camera3D]=[]
+var mirror_offsets:=[Vector3(-0.72,1.05,0.65),Vector3(0.0,1.05,0.65),Vector3(0.72,1.05,0.65)]
 var mirror_yaws:=[2.65,3.14159,3.63]
 var road_curve:=Curve3D.new()
 var traffic_level:="کم"
@@ -23,6 +24,9 @@ func _process(_delta:float)->void:
   speed_label.text="%03d km/h"%int(d.speed_kmh)
   rpm_label.text="RPM %04d"%int(d.rpm)
   gear_label.text="دنده "+str(d.gear)
+  for i in range(mirror_cameras.size()):
+   mirror_cameras[i].global_position=car.global_transform*mirror_offsets[i]
+   mirror_cameras[i].global_rotation=car.global_rotation+Vector3(0.0,mirror_yaws[i],0.0)
 func _build_world()->void:
  var sun:=DirectionalLight3D.new()
  sun.rotation_degrees=Vector3(-48,-28,0)
@@ -239,9 +243,9 @@ func _build_live_mirrors(parent:Control)->void:
   viewport.world_3d=get_viewport().world_3d
   viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS
   var camera:=Camera3D.new()
-  camera.position=Vector3([-0.72,0.0,0.72][i],1.05,0.65)
   camera.rotation.y=mirror_yaws[i]
   camera.fov=72
+  camera.current=true
   viewport.add_child(camera)
   car.add_child(viewport)
   mirror_cameras.append(camera)
