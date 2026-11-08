@@ -9,6 +9,7 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 handheld/orientation=1
 [rendering]
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_clear_color=Color(0.48,0.68,0.86,1)
