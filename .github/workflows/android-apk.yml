@@ -34,16 +34,16 @@ jobs:
           JAVA_PATH="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
           mkdir -p "$HOME/.config/godot" "$HOME/.android"
           keytool -genkeypair -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
-          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          cat > "$HOME/.config/godot/editor_settings-4.4.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
 
           [resource]
           _data = {
-          "export/android/android_sdk_path": "$SDK_PATH",
-          "export/android/java_sdk_path": "$JAVA_PATH",
-          "export/android/debug_keystore": "$HOME/.android/debug.keystore",
-          "export/android/debug_keystore_user": "androiddebugkey",
-          "export/android/debug_keystore_pass": "android"
+          export/android/android_sdk_path = "$SDK_PATH"
+          export/android/java_sdk_path = "$JAVA_PATH"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
           }
           EOF
           echo "Android SDK: $SDK_PATH"
@@ -60,7 +60,10 @@ jobs:
       - name: Export Android debug APK
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/OpenRoad-debug.apk
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$HOME/.android/debug.keystore" \\
+            GODOT_ANDROID_KEYSTORE_DEBUG_USER="androiddebugkey" \\
+            GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD="android" \\
+            godot --headless --path . --export-debug "Android" build/OpenRoad-debug.apk
           test -s build/OpenRoad-debug.apk
 
       - name: Upload APK
