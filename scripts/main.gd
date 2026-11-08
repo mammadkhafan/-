@@ -351,7 +351,7 @@ func _spawn_traffic()->void:
  var count:int=int(TRAFFIC_PRESETS.get(traffic_level,15))
  var length:=maxf(road_curve.get_baked_length(),1.0)
  for i in range(count):
-  var npc=load("res://scripts/traffic_car.gd").new()
+  var npc:Node3D=load("res://scripts/traffic_car.gd").new()
   var visual:=MeshInstance3D.new()
   var mesh:=BoxMesh.new()
   mesh.size=Vector3(1.7,0.85,3.5)
@@ -361,7 +361,7 @@ func _spawn_traffic()->void:
   visual.material_override=mat
   npc.add_child(visual)
   add_child(npc)
-  npc.configure(road_curve,length*float(i)/maxf(float(count),1.0),8.0+float(i%5)*1.4)
+  npc.call("configure",road_curve,length*float(i)/maxf(float(count),1.0),8.0+float(i%5)*1.4)
   traffic_nodes.append(npc)
 func _apply_fps()->void:
  Engine.max_fps=clampi(int(settings.fps),1,60)
