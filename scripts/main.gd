@@ -1,6 +1,6 @@
 extends Node3D
 const TRAFFIC_PRESETS={"خاموش":0,"خیلی کم":5,"کم":15,"متوسط":30,"زیاد":50,"خیلی زیاد":80}
-var car:RigidBody3D
+var car:PrototypeCarController
 var speed_label:Label
 var rpm_label:Label
 var gear_label:Label
@@ -70,11 +70,10 @@ func _build_winding_road()->void:
   add_child(road)
  # 17 km at 200 km/h is approximately 5.1 minutes.
 func _build_player_car()->void:
- car=RigidBody3D.new()
+ car=load("res://scripts/car_controller.gd").new()
  car.name="PlayerCar"
  car.position=Vector3(0,1.1,5)
- car.set_script(load("res://scripts/car_controller.gd"))
- var shape:=CollisionShape3D.new()
+  var shape:=CollisionShape3D.new()
  var box:=BoxShape3D.new()
  box.size=Vector3(1.85,0.65,4.2)
  shape.shape=box
@@ -228,8 +227,7 @@ func _spawn_traffic()->void:
  var count:int=int(TRAFFIC_PRESETS.get(traffic_level,15))
  var length:=maxf(road_curve.get_baked_length(),1.0)
  for i in range(count):
-  var npc:=Node3D.new()
-  npc.set_script(load("res://scripts/traffic_car.gd"))
+  var npc=load("res://scripts/traffic_car.gd").new()
   var visual:=MeshInstance3D.new()
   var mesh:=BoxMesh.new()
   mesh.size=Vector3(1.7,0.85,3.5)
