@@ -6,13 +6,13 @@ const GRASS := Color(0.19, 0.29, 0.16)
 var asset_manifest: Dictionary = {}
 
 func build_world(root: Node3D, curve: Curve3D) -> void:
+	_load_asset_manifest()
 	_build_lighting(root)
 	_build_ground(root)
 	_build_road(root, curve)
 	_build_forest(root, curve)
 	_build_hills(root, curve)
 	_build_town(root)
-	_load_asset_manifest()
 	_build_imported_props(root, curve)
 
 func _material(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
