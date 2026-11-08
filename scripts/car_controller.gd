@@ -18,6 +18,7 @@ var look_yaw:=0.0
 var look_pitch:=0.0
 var seat_offset:=Vector3.ZERO
 var seat_pitch:=0.0
+var mouse_look_active:=false
 var selected_car:=0
 @onready var camera_pivot:Node3D=$CabinCameraPivot
 func _ready()->void:
@@ -30,6 +31,15 @@ func set_vehicle(index:int)->void:
  selected_car=clampi(index,0,19)
  vehicle_data=VehicleCatalog.get_vehicle(selected_car)
  mass=float(vehicle_data.get("mass",1200.0))
+func _unhandled_input(event:InputEvent)->void:
+ if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_RIGHT:
+  mouse_look_active=event.pressed
+ elif event is InputEventMouseMotion and mouse_look_active:
+  look_yaw=clampf(look_yaw-event.relative.x*0.002,deg_to_rad(-110),deg_to_rad(110))
+  look_pitch=clampf(look_pitch-event.relative.y*0.002,deg_to_rad(-40),deg_to_rad(30))
+ elif event is InputEventScreenDrag:
+  look_yaw=clampf(look_yaw-event.relative.x*0.002,deg_to_rad(-110),deg_to_rad(110))
+  look_pitch=clampf(look_pitch-event.relative.y*0.002,deg_to_rad(-40),deg_to_rad(30))
 func _physics_process(delta:float)->void:
  _read_controls()
  _update_engine(delta)
