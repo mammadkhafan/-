@@ -42,7 +42,7 @@ func _build_world()->void:
  add_child(env)
  var ground:=MeshInstance3D.new()
  var plane:=PlaneMesh.new()
- plane.size=Vector2(20000,20000)
+ plane.size=Vector2(40000,40000)
  ground.mesh=plane
  ground.position.y=-0.12
  var grass:=StandardMaterial3D.new()
@@ -52,7 +52,7 @@ func _build_world()->void:
  var ground_body:=StaticBody3D.new()
  var ground_collision:=CollisionShape3D.new()
  var ground_box:=BoxShape3D.new()
- ground_box.size=Vector3(20000,1,20000)
+ ground_box.size=Vector3(40000,1,40000)
  ground_collision.shape=ground_box
  ground_body.position.y=-0.62
  ground_body.add_child(ground_collision)
