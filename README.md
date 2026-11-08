@@ -15,11 +15,11 @@ This is an expanded Godot 4 prototype, not a finished game or exported APK.
 
 ## Still incomplete
 - The route now has a small procedural town, scattered rural houses, and simple gas-station, repair-shop and parking landmarks. These are primitive prototype scenery, not a detailed finished open world with a full street network or modeled interiors.
-- Vehicle physics are simplified rigid-body forces, not realistic tire, suspension, differential or synchronized gearbox simulation. Vehicle profiles are starter tuning data, not complete unique car implementations.
+- A first raycast-based suspension and four-wheel force model is in place, with a simplified torque curve and selectable tuning profiles. It is still prototype physics: tire slip curves, differential behavior, drivetrain inertia and calibration against real vehicles are not complete. The 20 entries are tuning profiles, not 20 finished unique vehicle models.
 - Traffic follows a route visually; there is no intelligent lane changing, collision avoidance or full traffic AI.
-- Three low-resolution live camera mirrors are included with basic angle adjustment. Per-vehicle saved mirror presets and polished mirror housings are not finished.
+- Three low-resolution live camera mirrors are included with angle settings saved separately for each vehicle.
 - A basic dashboard, steering-wheel ring, pedals and gear lever are visible cockpit placeholders; they are not yet animated. Detailed vehicle meshes, engine audio, damage, save slots and profiling remain unfinished.
-- Android export templates, signing, installation and testing on the Nokia 6.1 have not been completed. There is no APK in this repository.
+- An automated Android debug-APK workflow and export preset are configured. A successful build is not yet confirmed; the workflow must pass before an APK artifact exists. Release signing, installation and testing on the Nokia 6.1 remain outstanding.
 
 ## Run
 Install Godot 4.x, clone/download this repository, open project.godot and run the main scene.
