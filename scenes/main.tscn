@@ -1,45 +1,4 @@
-[gd_scene load_steps=6 format=3]
-
-[ext_resource type="Script" path="res://scripts/car_controller.gd" id="1_car"]
-
-[sub_resource type="BoxShape3D" id="BoxShape_ground"]
-size = Vector3(300, 1, 300)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ground"]
-size = Vector3(300, 1, 300)
-
-[sub_resource type="BoxShape3D" id="BoxShape_car"]
-size = Vector3(1.8, 0.6, 4.0)
-
-[sub_resource type="BoxMesh" id="BoxMesh_car"]
-size = Vector3(1.8, 0.6, 4.0)
-
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [node name="Main" type="Node3D"]
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-rotation = Vector3(-0.8, -0.5, 0)
-shadow_enabled = true
-
-[node name="Ground" type="StaticBody3D" parent="."]
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("BoxShape_ground")
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
-mesh = SubResource("BoxMesh_ground")
-position = Vector3(0, -0.5, 0)
-
-[node name="Car" type="RigidBody3D" parent="."]
-position = Vector3(0, 1.2, 0)
-mass = 1200.0
-script = ExtResource("1_car")
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Car"]
-shape = SubResource("BoxShape_car")
-[node name="BodyVisual" type="MeshInstance3D" parent="Car"]
-mesh = SubResource("BoxMesh_car")
-[node name="CabinCameraPivot" type="Node3D" parent="Car"]
-position = Vector3(0, 1.0, -0.35)
-[node name="Camera3D" type="Camera3D" parent="Car/CabinCameraPivot"]
-current = true
-position = Vector3(0, 0.1, 0.15)
-fov = 75.0
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+script = ExtResource("1_main")
