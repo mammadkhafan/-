@@ -77,9 +77,9 @@ func _build_landmarks()->void:
   house.mesh=hm
   house.position=Vector3(28.0+float(i%2)*15.0,2.5,-2400.0-float(i)*520.0)
   add_child(house)
- _make_service_stop(Vector3(24,0,-4300),"پمپ بنزین",Color(0.82,0.68,0.16))
- _make_service_stop(Vector3(-26,0,-9600),"تعمیرگاه",Color(0.18,0.48,0.72))
- _make_service_stop(Vector3(22,0,-13900),"پارکینگ",Color(0.28,0.58,0.34))
+ _make_service_stop(Vector3(220,0,-4300),"پمپ بنزین",Color(0.82,0.68,0.16))
+ _make_service_stop(Vector3(780,0,-9600),"تعمیرگاه",Color(0.18,0.48,0.72))
+ _make_service_stop(Vector3(-300,0,-13900),"پارکینگ",Color(0.28,0.58,0.34))
 func _make_service_stop(pos:Vector3,title_text:String,tint:Color)->void:
  var building:=MeshInstance3D.new()
  var mesh:=BoxMesh.new()
@@ -133,6 +133,8 @@ func _build_player_car()->void:
  car=load("res://scripts/car_controller.gd").new()
  car.name="PlayerCar"
  car.position=Vector3(0,1.1,5)
+ car.linear_damp=0.15
+ car.angular_damp=2.0
  var shape:=CollisionShape3D.new()
  var box:=BoxShape3D.new()
  box.size=Vector3(1.85,0.65,4.2)
@@ -158,7 +160,6 @@ func _build_player_car()->void:
  wheel_mesh.outer_radius=0.31
  wheel.mesh=wheel_mesh
  wheel.position=Vector3(0,0.63,-0.62)
- wheel.rotation.x=deg_to_rad(90)
  car.add_child(wheel)
  for side in [-1.0,1.0]:
   var pedal:=MeshInstance3D.new()
